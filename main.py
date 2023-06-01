@@ -1,3 +1,28 @@
+import importlib
+import subprocess
+
+# Check if the required packages are installed
+packages = ['numpy', 'scipy', 'pandas']
+installed_packages = []
+
+for package in packages:
+    try:
+        importlib.import_module(package)
+        installed_packages.append(package)
+    except ImportError:
+        pass
+
+# Install missing packages using pip if necessary
+missing_packages = set(packages) - set(installed_packages)
+
+if missing_packages:
+    print(f"Missing packages detected: {', '.join(missing_packages)}")
+    print("Installing required packages...")
+
+    for package in missing_packages:
+        subprocess.check_call(['pip', 'install', package])
+
+# Import the required packages
 import numpy as np
 import scipy.stats as stats
 import pandas as pd
