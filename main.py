@@ -111,8 +111,45 @@ for i, (column, name) in enumerate(zip(columns, column_names)):
     ax_box.set_title(f'{name} Box Plot')
     ax_box.set_ylabel('Value')
 
+    # Calculate and add labels to box plot
+    box_vals = np.percentile(column_data, [0, 25, 50, 75, 100])
+    whiskers = ax_box.get_lines()[:2]
+    caps = ax_box.get_lines()[2:4]
+    fliers = ax_box.get_lines()[4]
+
+    # Add labels to quantiles
+    for j, val in enumerate(box_vals):
+        # Adjust x-position offset for quantiles
+        x_offset = 0.06 if j == 3 else 0.12
+        y_offset = 0.1
+        if j != 2:
+            ax_box.annotate(f'{val:.2f}', (1 + x_offset, val), xytext=(0, y_offset), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+        else:
+            ax_box.annotate(f'{val:.2f}', (1 + x_offset, val), xytext=(0, -y_offset), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+
+    # Add labels to whiskers
+    whisker_y1 = whiskers[0].get_ydata()[1]
+    whisker_y2 = whiskers[1].get_ydata()[1]
+    ax_box.annotate(f'{whisker_y1:.2f}', (1.05, whisker_y1), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+    ax_box.annotate(f'{whisker_y2:.2f}', (1.05, whisker_y2), xytext=(0, 10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+
+    # Add labels to caps
+    cap_y1 = caps[0].get_ydata()[1]
+    cap_y2 = caps[1].get_ydata()[1]
+    ax_box.annotate(f'{cap_y1:.2f}', (1.05, cap_y1), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+    ax_box.annotate(f'{cap_y2:.2f}', (1.05, cap_y2), xytext=(0, 10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+
+    # Add labels to outliers if available
+    if len(fliers.get_ydata()) > 0:
+        flier_data = fliers.get_ydata()
+        for flier_y in flier_data:
+            # Adjust x-position offset for outliers
+            x_offset = 0.12
+            ax_box.annotate(f'{flier_y:.2f}', (1 + x_offset, flier_y), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
+
 # Show the figures
-plt.show()
+plt.tight_layout()
+plt.show(block=False)
 
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
