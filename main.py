@@ -36,121 +36,56 @@ valorP_aceptacion = 0.05
 # Read the CSV file into a pandas DataFrame
 data = pd.read_csv('Conjunto_datos_proyecto3.csv', delimiter=',')
 
+# Exclude "numero muestra" column from data
+data = data.drop(columns='Numero muestra')
+
 # Extract the column data
 inicial = data['Inicial']
 primer_cambio = data['Primer_cambio']
 segundo_cambio = data['Segundo_cambio']
 
+def calculate_statistics(data):
+    statistics = {}
+
+    for column_name, column_data in data.items():
+        column_statistics = {
+            'Average': np.mean(column_data),
+            'Variance': np.var(column_data),
+            'Standard Deviation': np.std(column_data),
+            'Median': np.median(column_data),
+            '25th Percentile': np.percentile(column_data, 25),
+            '50th Percentile (Median)': np.percentile(column_data, 50),
+            '75th Percentile': np.percentile(column_data, 75),
+            'Mode': stats.mode(column_data)[0][0]
+        }
+        statistics[column_name] = column_statistics
+
+    return statistics
+
 # Calculate statistics for each column
-columns = [inicial, primer_cambio, segundo_cambio]
-column_names = ['Inicial', 'Primer_cambio', 'Segundo_cambio']
+statistics = calculate_statistics(data)
 
-# Create a dictionary to store the statistics
-statistics = {
-    'Average': [],
-    'Variance': [],
-    'Standard Deviation': [],
-    'Median': [],
-    '25th Percentile': [],
-    '50th Percentile (Median)': [],
-    '75th Percentile': [],
-    'Mode': []
-}
-
-info = zip(columns, column_names)
-
-# Calculate statistics for each column
-for column, name in info:
-    # Convert the column to a NumPy array
-    column_data = column.values
-
-    # Calculate statistics using NumPy and SciPy
-    average = np.mean(column_data)
-    variance = np.var(column_data)
-    std_deviation = np.std(column_data)
-    median = np.median(column_data)
-    quantiles = np.percentile(column_data, [25, 50, 75])
-    mode = stats.mode(column_data)[0][0]
-
-    # Add the statistics to the dictionary
-    statistics['Average'].append(average)
-    statistics['Variance'].append(variance)
-    statistics['Standard Deviation'].append(std_deviation)
-    statistics['Median'].append(median)
-    statistics['25th Percentile'].append(quantiles[0])
-    statistics['50th Percentile (Median)'].append(quantiles[1])
-    statistics['75th Percentile'].append(quantiles[2])
-    statistics['Mode'].append(mode)
-
-# Create a DataFrame from the statistics dictionary
-statistics_df = pd.DataFrame(statistics, index=column_names)
+# Create a DataFrame from the statistics dictionaries
+statistics_df = pd.DataFrame(statistics)
 
 # Print the DataFrame
 print(statistics_df)
 
-# Create a figure for histograms
-fig_hist = plt.figure(figsize=(12, 8))
-fig_hist.suptitle('Histograms')
-
-# Create a figure for box plots
-fig_box = plt.figure(figsize=(12, 8))
-fig_box.suptitle('Box Plots')
-
 # Display histograms and box plots
-for i, (column, name) in enumerate(zip(columns, column_names)):
-    # Convert the column to a NumPy array
-    column_data = column.values
+for i, (column_name, column_data) in enumerate(data.items()):
+    # Create a new window for each histogram
+    fig_hist = plt.figure(figsize=(8, 6))
+    plt.hist(column_data, bins='auto')
+    plt.title(f'{column_name} Histogram')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
 
-    # Plot histogram
-    ax_hist = fig_hist.add_subplot(1, len(columns), i + 1)
-    ax_hist.hist(column_data, bins='auto')
-    ax_hist.set_title(f'{name} Histogram')
-    ax_hist.set_xlabel('Value')
-    ax_hist.set_ylabel('Frequency')
+    # Create a new window for each box plot
+    fig_box = plt.figure(figsize=(8, 6))
+    plt.boxplot(column_data)
+    plt.title(f'{column_name} Box Plot')
+    plt.ylabel('Value')
 
-    # Plot box plot
-    ax_box = fig_box.add_subplot(1, len(columns), i + 1)
-    ax_box.boxplot(column_data)
-    ax_box.set_title(f'{name} Box Plot')
-    ax_box.set_ylabel('Value')
-
-    # Calculate and add labels to box plot
-    box_vals = np.percentile(column_data, [0, 25, 50, 75, 100])
-    whiskers = ax_box.get_lines()[:2]
-    caps = ax_box.get_lines()[2:4]
-    fliers = ax_box.get_lines()[4]
-
-    # Add labels to quantiles
-    for j, val in enumerate(box_vals):
-        # Adjust x-position offset for quantiles
-        x_offset = 0.06 if j == 3 else 0.12
-        y_offset = 0.1
-        if j != 2:
-            ax_box.annotate(f'{val:.2f}', (1 + x_offset, val), xytext=(0, y_offset), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-        else:
-            ax_box.annotate(f'{val:.2f}', (1 + x_offset, val), xytext=(0, -y_offset), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-
-    # Add labels to whiskers
-    whisker_y1 = whiskers[0].get_ydata()[1]
-    whisker_y2 = whiskers[1].get_ydata()[1]
-    ax_box.annotate(f'{whisker_y1:.2f}', (1.05, whisker_y1), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-    ax_box.annotate(f'{whisker_y2:.2f}', (1.05, whisker_y2), xytext=(0, 10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-
-    # Add labels to caps
-    cap_y1 = caps[0].get_ydata()[1]
-    cap_y2 = caps[1].get_ydata()[1]
-    ax_box.annotate(f'{cap_y1:.2f}', (1.05, cap_y1), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-    ax_box.annotate(f'{cap_y2:.2f}', (1.05, cap_y2), xytext=(0, 10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-
-    # Add labels to outliers if available
-    if len(fliers.get_ydata()) > 0:
-        flier_data = fliers.get_ydata()
-        for flier_y in flier_data:
-            # Adjust x-position offset for outliers
-            x_offset = 0.12
-            ax_box.annotate(f'{flier_y:.2f}', (1 + x_offset, flier_y), xytext=(0, -10), textcoords='offset points', ha='left', va='center', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round'))
-
-# Show the figures
 plt.tight_layout()
 plt.show(block=False)
 
@@ -222,7 +157,7 @@ perform_statistical_tests_ind(segundo_cambio.values, inicial.values, "segundo ca
 from scipy.stats import norm
 
 #Obtener los parámetros de ajuste
-def calculate_mle_params(data):
+def calculate_mle_params(data, dataSetDic):
     def neg_log_likelihood(params, x):
         sigma, mu = params
         return np.sum(np.log(sigma ** 2) + ((x - mu) ** 2) / sigma ** 2)
@@ -233,14 +168,14 @@ def calculate_mle_params(data):
     estimate_variance = mle_std ** 2
 
     print("\nPara la muestra:")
-    print("MLE Standard Deviation: ", mle_std, " vs ", "Sample Standard Deviation: ", data.std())
-    print("MLE Variance: ", estimate_variance, " vs ", "Sample Variance: ", data.var())
-    print("Error percentage for standard deviation is = ", 100 * (data.std() - mle_std) / data.std())
-    print("Error percentage for variance is = ", 100 * (data.var() - estimate_variance) / data.var())
+    print("MLE Standard Deviation: ", mle_std, " vs ", "Sample Standard Deviation: ", dataSetDic['Standard Deviation'])
+    print("MLE Variance: ", estimate_variance, " vs ", "Sample Variance: ", dataSetDic['Variance'])
+    print("Error percentage for standard deviation is = ", 100 * (dataSetDic['Standard Deviation'] - mle_std) / dataSetDic['Standard Deviation'])
+    print("Error percentage for variance is = ", 100 * (dataSetDic['Variance'] - estimate_variance) / dataSetDic['Variance'])
 
-calculate_mle_params(inicial.values)
-calculate_mle_params(primer_cambio.values)
-calculate_mle_params(segundo_cambio.values)
+calculate_mle_params(inicial.values, statistics['Inicial'])
+calculate_mle_params(primer_cambio.values, statistics['Primer_cambio'])
+calculate_mle_params(segundo_cambio.values, statistics['Segundo_cambio'])
 
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
