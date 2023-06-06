@@ -1,9 +1,5 @@
 import importlib
 import subprocess
-import numpy as np
-import scipy.stats as stats
-import pandas as pd
-import matplotlib.pyplot as plt
 
 # Check if the required packages are installed
 packages = ['numpy', 'scipy', 'pandas', 'matplotlib']
@@ -56,8 +52,10 @@ statistics = {
     'Mode': []
 }
 
+info = zip(columns, column_names)
+
 # Calculate statistics for each column
-for column, name in zip(columns, column_names):
+for column, name in info:
     # Convert the column to a NumPy array
     column_data = column.values
 
@@ -150,6 +148,33 @@ for i, (column, name) in enumerate(zip(columns, column_names)):
 # Show the figures
 plt.tight_layout()
 plt.show(block=False)
+
+#Pruebas de hipotesis
+
+t_statistic_1samp_inicial, p_value_1samp_inicial = stats.ttest_1samp(inicial.values, 70)
+
+print("\nEstadística t para probar que inicial cumple:", t_statistic_1samp_inicial)
+print("Valor p para probar que inicial cumple:", p_value_1samp_inicial, "\n")
+
+t_statistic_1samp_primer_cambio, p_value_1samp_primer_cambio = stats.ttest_1samp(primer_cambio.values, 70)
+
+print("\nEstadística t para probar que primer cambio cumple:", t_statistic_1samp_primer_cambio)
+print("Valor p para probar que primer cambio cumple:", p_value_1samp_primer_cambio, "\n")
+
+t_statistic_1samp_segundo_cambio, p_value_1samp_segundo_cambio = stats.ttest_1samp(segundo_cambio.values, 70)
+
+print("\nEstadística t para probar que segundo cambio cumple:", t_statistic_1samp_segundo_cambio)
+print("Valor p para probar que segundo cambio cumple:", p_value_1samp_segundo_cambio, "\n")
+
+t_statistic, p_value = stats.ttest_ind(inicial.values, primer_cambio.values)
+
+print("\nEstadística t para inicial comparado a primer cambio:", t_statistic)
+print("Valor p para inicial comparado a primer cambio:", p_value, "\n")
+
+t_statistic, p_value = stats.ttest_ind(inicial.values, segundo_cambio.values)
+
+print("\nEstadística t para inicial comparado a segundo cambio:", t_statistic)
+print("Valor p para inicial comparado a segundo cambio:", p_value, "\n")
 
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
