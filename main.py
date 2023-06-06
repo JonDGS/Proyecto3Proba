@@ -284,6 +284,27 @@ else:
           " es mayor a ", valorP_aceptacion,
           " se puede determinar que no hay una diferencia significativa",
           " entre la media inicial y la media del primer cambio")
+
+from scipy.stats import norm
+
+#Obtener los parámetros de ajuste
+paramsInitial = norm.fit(inicial)
+paramsPrimero = norm.fit(primer_cambio)
+paramsSegundo = norm.fit(segundo_cambio) 
+
+#mprimir los parámetros estimados
+print("Media inicial:", paramsInitial[0])
+print("Desviación estándar inicial:", paramsInitial[1])
+print(norm.interval(0.95, loc=paramsInitial[0], scale=paramsInitial[1]), "Es el rango")
+
+print("Media primer cambio:", paramsPrimero[0])
+print("Desviación estándar primer cambio:", paramsPrimero[1])
+print(norm.interval(0.95, loc=paramsPrimero[0], scale=paramsPrimero[1]), "Es el rango")
+
+print("Media segundo cambio:", paramsSegundo[0])
+print("Desviación estándar segundo cambio:", paramsSegundo[1])
+print(norm.interval(0.95, loc=paramsSegundo[0], scale=paramsSegundo[1]), "Es el rango")
+
     
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
