@@ -25,6 +25,7 @@ if missing_packages:
 # Import the required packages
 import numpy as np
 import scipy.stats as stats
+import scipy.optimize as opt
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -267,44 +268,68 @@ else:
 
 if(t_statistic_ind_segundo_cambio > 0):
     print("\nDado un valor t de ", t_statistic_ind_segundo_cambio,
-          " se puede determinar que los datos del primer cambio presentan",
+          " se puede determinar que los datos del segundo cambio presentan",
           " un valor de media poblacional mayor al de los datos iniciales")
 else:
     print("\nDado un valor t de ", t_statistic_ind_segundo_cambio,
-          " se puede determinar que los datos del primer cambio presentan",
+          " se puede determinar que los datos del segundo cambio presentan",
           " un valor de media poblacional menor al de los datos iniciales")
     
 if(p_value_ind_segundo_cambio < valorP_aceptacion):
     print("\nDado un valor p de ", p_value_ind_segundo_cambio,
           " es menor a ", valorP_aceptacion,
           " se puede determinar que hay una diferencia significativa",
-          " entre la media inicial y la media del primer cambio")
+          " entre la media inicial y la media del segundo cambio")
 else:
     print("\nDado un valor p de ", p_value_ind_segundo_cambio,
           " es mayor a ", valorP_aceptacion,
           " se puede determinar que no hay una diferencia significativa",
-          " entre la media inicial y la media del primer cambio")
+          " entre la media inicial y la media del segundo cambio")
 
 from scipy.stats import norm
 
 #Obtener los parámetros de ajuste
-paramsInitial = norm.fit(inicial)
-paramsPrimero = norm.fit(primer_cambio)
-paramsSegundo = norm.fit(segundo_cambio) 
+def neg_log_likelihood(sigma, x, mu):
+    return np.sum(np.log(sigma ** 2) + ((x - mu) ** 2) / sigma ** 2)
 
-#mprimir los parámetros estimados
-print("Media inicial:", paramsInitial[0])
-print("Desviación estándar inicial:", paramsInitial[1])
-print(norm.interval(0.95, loc=paramsInitial[0], scale=paramsInitial[1]), "Es el rango")
+resultInicial = opt.minimize(neg_log_likelihood, x0=1, args=(inicial.values, inicial.values.mean()), method='Nelder-Mead')
 
-print("Media primer cambio:", paramsPrimero[0])
-print("Desviación estándar primer cambio:", paramsPrimero[1])
-print(norm.interval(0.95, loc=paramsPrimero[0], scale=paramsPrimero[1]), "Es el rango")
+mle_std_inicial = resultInicial.x[0]
+estimate_variance_inicial = resultInicial.x[0] ** 2
 
-print("Media segundo cambio:", paramsSegundo[0])
-print("Desviación estándar segundo cambio:", paramsSegundo[1])
-print(norm.interval(0.95, loc=paramsSegundo[0], scale=paramsSegundo[1]), "Es el rango")
+print ("\nPara la muestra inicial:")
+print("MLE Standard Deviation: ", mle_std_inicial, " vs ", "Sample Standard Deviation: ", inicial.values.std())
+print("MLE Variance: ", estimate_variance_inicial, " vs ", "Sample Variance: ", inicial.values.var())
+print("Error percentage for standard deviation is = ", 100*(inicial.values.std()-mle_std_inicial)
+      /inicial.values.std())
+print("Error percentage for variance is = ", 100*(inicial.values.var()-estimate_variance_inicial)
+      /inicial.values.var())
 
-    
+resultPrimerCambio = opt.minimize(neg_log_likelihood, x0=1, args=(primer_cambio.values, primer_cambio.values.mean()), method='Nelder-Mead')
+
+mle_std_primer_cambio = resultPrimerCambio.x[0]
+estimate_variance_primer_cambio = resultPrimerCambio.x[0] ** 2
+
+print ("\nPara la muestra de primer cambio:")
+print("MLE Standard Deviation: ", mle_std_primer_cambio, " vs ", "Sample Standard Deviation: ", primer_cambio.values.std())
+print("MLE Variance: ", estimate_variance_primer_cambio, " vs ", "Sample Variance: ", primer_cambio.values.var())
+print("Error percentage for standard deviation is = ", 100*(primer_cambio.values.std()-mle_std_primer_cambio)
+      /primer_cambio.values.std())
+print("Error percentage for variance is = ", 100*(primer_cambio.values.var()-estimate_variance_primer_cambio)
+      /primer_cambio.values.var())
+
+resultSegundoCambio = opt.minimize(neg_log_likelihood, x0=1, args=(segundo_cambio.values, segundo_cambio.values.mean()), method='Nelder-Mead')
+
+mle_std_segundo_cambio = resultSegundoCambio.x[0]
+estimate_variance_segundo_cambio = resultSegundoCambio.x[0] ** 2
+
+print ("\nPara la muestra de segundo cambio:")
+print("MLE Standard Deviation: ", mle_std_segundo_cambio, " vs ", "Sample Standard Deviation: ", segundo_cambio.values.std())
+print("MLE Variance: ", estimate_variance_segundo_cambio, " vs ", "Sample Variance: ", segundo_cambio.values.var())
+print("Error percentage for standard deviation is = ", 100*(segundo_cambio.values.std()-mle_std_segundo_cambio)
+      /segundo_cambio.values.std())
+print("Error percentage for variance is = ", 100*(segundo_cambio.values.var()-estimate_variance_segundo_cambio)
+      /segundo_cambio.values.var())
+
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
