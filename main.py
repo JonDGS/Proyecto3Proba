@@ -156,180 +156,91 @@ plt.show(block=False)
 
 #Pruebas de hipotesis
 
-t_statistic_1samp_inicial, p_value_1samp_inicial = stats.ttest_1samp(inicial.values,
-                                                                      limiteMediaAceptable)
+def perform_statistical_tests(data, dataset_name):
 
-t_statistic_1samp_primer_cambio, p_value_1samp_primer_cambio = stats.ttest_1samp(primer_cambio.values,
-                                                                                  limiteMediaAceptable)
+    # Perform one-sample t-test
+    t_statistic, p_value = stats.ttest_1samp(data, limiteMediaAceptable)
 
-t_statistic_1samp_segundo_cambio, p_value_1samp_segundo_cambio = stats.ttest_1samp(segundo_cambio.values,
-                                                                                    limiteMediaAceptable)
+    print("\nPara la muestra", dataset_name + ":")
+    if t_statistic > 0:
+        print("Dado un valor t =", t_statistic,
+              "los datos tienen una media mayor a 70, por lo que se consideran aceptables")
+    else:
+        print("Dado un valor t =", t_statistic,
+              "los datos tienen una media menor a 70, por lo que no se consideran aceptables")
 
-t_statistic_ind_primer_cambio, p_value_ind_primer_cambio = stats.ttest_ind(primer_cambio.values, inicial.values)
-
-t_statistic_ind_segundo_cambio, p_value_ind_segundo_cambio = stats.ttest_ind(segundo_cambio.values, inicial.values)
+    if p_value < valorP_aceptacion:
+        print("Dado un valor p de", p_value, "es menor a", valorP_aceptacion,
+              "se puede determinar que los datos son estadísticamente significativos")
+    else:
+        print("Dado un valor p de", p_value, "es mayor a", valorP_aceptacion,
+              "no se puede determinar una diferencia estadísticamente significativa")
+        
+    return (t_statistic, p_value)
 
 #Comprobando que los datos cumplan con el 70% de media poblacional de rendimiento
 print("\nCOMPROBANDO SI TODAS LOS DATOS CUMPLEN CON UN 70 DE MEDIA POBLACIÓN...\n")
 
-data_1samp = {
-    'Prueba': ['Inicial', 'Primer_cambio', 'Segundo_cambio'],
-    'Valor t': [t_statistic_1samp_inicial, t_statistic_1samp_primer_cambio, t_statistic_1samp_segundo_cambio],
-    'Valor p': [p_value_1samp_inicial, p_value_1samp_primer_cambio, p_value_1samp_segundo_cambio]
-}
+perform_statistical_tests(inicial.values, "inicial")
+perform_statistical_tests(primer_cambio.values, "primer cambio")
+perform_statistical_tests(segundo_cambio.values, "segundo cambio")
 
-df_1samp = pd.DataFrame(data_1samp)
+def perform_statistical_tests_ind(data1, data2, dataset1_name, dataset2_name):
 
-print("Tabla - ttest_1samp")
-print(df_1samp.to_string(index=False))
-print("-" * 40)
+    # Perform independent t-test
+    t_statistic, p_value = stats.ttest_ind(data1, data2)
 
-if(t_statistic_1samp_inicial > 0):
-    print("\nDado un valor t = ", t_statistic_1samp_inicial,
-          " los datos iniciales tienen una media mayor a 70 por lo que se consideran aceptables")
-else:
-    print("\nDado un valor t = ", t_statistic_1samp_inicial,
-          " los datos iniciales tienen una media menor a 70 por lo que no se consideran aceptables")
+    print("\nCOMPROBANDO DIFERENCIAS ENTRE ", dataset1_name.upper(), " CON INICIAL...")
 
-if(p_value_1samp_inicial < valorP_aceptacion):
-    print("\nDado un valor p de ", p_value_1samp_inicial, " es menor a ", valorP_aceptacion,
-          " se puede determinar que los datos son",
-          " estadisticamente significativos y el rendimiento es significativamente mayor a 70")
-else:
-    print("\nDado un valor p de ", p_value_1samp_inicial, " es mayor a ", valorP_aceptacion,
-          " se puede determinar que los datos no son",
-          " estadisticamente significativos y no se puede determinar haya diferencia significativa")
+    if t_statistic > 0:
+        print("\nDado un valor t de", t_statistic,
+              "se puede determinar que los datos de", dataset1_name, "presentan",
+              "un valor de media poblacional mayor al de los datos de", dataset2_name)
+    else:
+        print("\nDado un valor t de", t_statistic,
+              "se puede determinar que los datos de", dataset1_name, "presentan",
+              "un valor de media poblacional menor al de los datos de", dataset2_name)
 
-if(t_statistic_1samp_primer_cambio > 0):
-    print("\nDado un valor t = ", t_statistic_1samp_primer_cambio,
-          " los datos iniciales tienen una media mayor a 70 por lo que se consideran aceptables")
-else:
-    print("\nDado un valor t = ", t_statistic_1samp_primer_cambio,
-          " los datos iniciales tienen una media menor a 70 por lo que no se consideran aceptables")
-
-if(p_value_1samp_primer_cambio < valorP_aceptacion):
-    print("\nDado un valor p de ", p_value_1samp_primer_cambio, " es menor a ", valorP_aceptacion,
-          " se puede determinar que los datos son",
-          " estadisticamente significativos y el rendimiento es significativamente mayor a 70")
-else:
-    print("\nDado un valor p de ", p_value_1samp_primer_cambio, " es mayor a ", valorP_aceptacion,
-          " se puede determinar que los datos no son",
-          " estadisticamente significativos y no se puede determinar haya diferencia significativa")
-
-if(t_statistic_1samp_segundo_cambio > 0):
-    print("\nDado un valor t = ", t_statistic_1samp_segundo_cambio,
-          " los datos iniciales tienen una media mayor a 70 por lo que se consideran aceptables")
-else:
-    print("\nDado un valor t = ", t_statistic_1samp_segundo_cambio,
-          " los datos iniciales tienen una media menor a 70 por lo que no se consideran aceptables")
-
-if(p_value_1samp_segundo_cambio < valorP_aceptacion):
-    print("\nDado un valor p de ", p_value_1samp_segundo_cambio, " es menor a ", valorP_aceptacion,
-          " se puede determinar que los datos son",
-          " estadisticamente significativos y el rendimiento es significativamente mayor a 70")
-else:
-    print("\nDado un valor p de ", p_value_1samp_segundo_cambio, " es mayor a ", valorP_aceptacion,
-          " se puede determinar que los datos no son",
-          " estadisticamente significativos y no se puede determinar haya diferencia significativa")
-    
-#Comprobar que sean significativamente menores al inicial
+    if p_value < valorP_aceptacion:
+        print("\nDado un valor p de", p_value,
+              "es menor a", valorP_aceptacion,
+              "se puede determinar que hay una diferencia significativa",
+              "entre las medias de", dataset1_name, "y", dataset2_name)
+    else:
+        print("\nDado un valor p de", p_value,
+              "es mayor a", valorP_aceptacion,
+              "se puede determinar que no hay una diferencia significativa",
+              "entre las medias de", dataset1_name, "y", dataset2_name)
+        
+    return (t_statistic, p_value)
+        
 print("\nCOMPROBANDO DIFERENCIAS ENTRE PRIMER Y SEGUNDO CAMBIO, CON INICIAL...")
-data_ind = {
-    'Prueba': ['Primer_cambio', 'Segundo_cambio'],
-    'Valor t': [t_statistic_ind_primer_cambio, t_statistic_ind_segundo_cambio],
-    'Valor p': [p_value_ind_primer_cambio, p_value_ind_segundo_cambio]
-}
 
-df_ind = pd.DataFrame(data_ind)
-
-print("Tabla - ttest_ind")
-print(df_ind.to_string(index=False))
-print("-" * 40)
-
-if(t_statistic_ind_primer_cambio > 0):
-    print("\nDado un valor t de ", t_statistic_ind_primer_cambio,
-          " se puede determinar que los datos del primer cambio presentan",
-          " un valor de media poblacional mayor al de los datos iniciales")
-else:
-    print("\nDado un valor t de ", t_statistic_ind_primer_cambio,
-          " se puede determinar que los datos del primer cambio presentan",
-          " un valor de media poblacional menor al de los datos iniciales")
-
-if(p_value_ind_primer_cambio < valorP_aceptacion):
-    print("\nDado un valor p de ", p_value_ind_primer_cambio,
-          " es menor a ", valorP_aceptacion,
-          " se puede determinar que hay una diferencia significativa",
-          " entre la media inicial y la media del primer cambio")
-else:
-    print("\nDado un valor p de ", p_value_ind_primer_cambio,
-          " es mayor a ", valorP_aceptacion,
-          " se puede determinar que no hay una diferencia significativa",
-          " entre la media inicial y la media del primer cambio")
-
-if(t_statistic_ind_segundo_cambio > 0):
-    print("\nDado un valor t de ", t_statistic_ind_segundo_cambio,
-          " se puede determinar que los datos del segundo cambio presentan",
-          " un valor de media poblacional mayor al de los datos iniciales")
-else:
-    print("\nDado un valor t de ", t_statistic_ind_segundo_cambio,
-          " se puede determinar que los datos del segundo cambio presentan",
-          " un valor de media poblacional menor al de los datos iniciales")
-    
-if(p_value_ind_segundo_cambio < valorP_aceptacion):
-    print("\nDado un valor p de ", p_value_ind_segundo_cambio,
-          " es menor a ", valorP_aceptacion,
-          " se puede determinar que hay una diferencia significativa",
-          " entre la media inicial y la media del segundo cambio")
-else:
-    print("\nDado un valor p de ", p_value_ind_segundo_cambio,
-          " es mayor a ", valorP_aceptacion,
-          " se puede determinar que no hay una diferencia significativa",
-          " entre la media inicial y la media del segundo cambio")
+perform_statistical_tests_ind(primer_cambio.values, inicial.values, "primer cambio", "inicial")
+perform_statistical_tests_ind(segundo_cambio.values, inicial.values, "segundo cambio", "inicial")
 
 from scipy.stats import norm
 
 #Obtener los parámetros de ajuste
-def neg_log_likelihood(sigma, x, mu):
-    return np.sum(np.log(sigma ** 2) + ((x - mu) ** 2) / sigma ** 2)
+def calculate_mle_params(data):
+    def neg_log_likelihood(params, x):
+        sigma, mu = params
+        return np.sum(np.log(sigma ** 2) + ((x - mu) ** 2) / sigma ** 2)
 
-resultInicial = opt.minimize(neg_log_likelihood, x0=1, args=(inicial.values, inicial.values.mean()), method='Nelder-Mead')
+    result = opt.minimize(neg_log_likelihood, x0=[1, data.mean()], args=(data,), method='Nelder-Mead')
 
-mle_std_inicial = resultInicial.x[0]
-estimate_variance_inicial = resultInicial.x[0] ** 2
+    mle_std = result.x[0]
+    estimate_variance = mle_std ** 2
 
-print ("\nPara la muestra inicial:")
-print("MLE Standard Deviation: ", mle_std_inicial, " vs ", "Sample Standard Deviation: ", inicial.values.std())
-print("MLE Variance: ", estimate_variance_inicial, " vs ", "Sample Variance: ", inicial.values.var())
-print("Error percentage for standard deviation is = ", 100*(inicial.values.std()-mle_std_inicial)
-      /inicial.values.std())
-print("Error percentage for variance is = ", 100*(inicial.values.var()-estimate_variance_inicial)
-      /inicial.values.var())
+    print("\nPara la muestra:")
+    print("MLE Standard Deviation: ", mle_std, " vs ", "Sample Standard Deviation: ", data.std())
+    print("MLE Variance: ", estimate_variance, " vs ", "Sample Variance: ", data.var())
+    print("Error percentage for standard deviation is = ", 100 * (data.std() - mle_std) / data.std())
+    print("Error percentage for variance is = ", 100 * (data.var() - estimate_variance) / data.var())
 
-resultPrimerCambio = opt.minimize(neg_log_likelihood, x0=1, args=(primer_cambio.values, primer_cambio.values.mean()), method='Nelder-Mead')
-
-mle_std_primer_cambio = resultPrimerCambio.x[0]
-estimate_variance_primer_cambio = resultPrimerCambio.x[0] ** 2
-
-print ("\nPara la muestra de primer cambio:")
-print("MLE Standard Deviation: ", mle_std_primer_cambio, " vs ", "Sample Standard Deviation: ", primer_cambio.values.std())
-print("MLE Variance: ", estimate_variance_primer_cambio, " vs ", "Sample Variance: ", primer_cambio.values.var())
-print("Error percentage for standard deviation is = ", 100*(primer_cambio.values.std()-mle_std_primer_cambio)
-      /primer_cambio.values.std())
-print("Error percentage for variance is = ", 100*(primer_cambio.values.var()-estimate_variance_primer_cambio)
-      /primer_cambio.values.var())
-
-resultSegundoCambio = opt.minimize(neg_log_likelihood, x0=1, args=(segundo_cambio.values, segundo_cambio.values.mean()), method='Nelder-Mead')
-
-mle_std_segundo_cambio = resultSegundoCambio.x[0]
-estimate_variance_segundo_cambio = resultSegundoCambio.x[0] ** 2
-
-print ("\nPara la muestra de segundo cambio:")
-print("MLE Standard Deviation: ", mle_std_segundo_cambio, " vs ", "Sample Standard Deviation: ", segundo_cambio.values.std())
-print("MLE Variance: ", estimate_variance_segundo_cambio, " vs ", "Sample Variance: ", segundo_cambio.values.var())
-print("Error percentage for standard deviation is = ", 100*(segundo_cambio.values.std()-mle_std_segundo_cambio)
-      /segundo_cambio.values.std())
-print("Error percentage for variance is = ", 100*(segundo_cambio.values.var()-estimate_variance_segundo_cambio)
-      /segundo_cambio.values.var())
+calculate_mle_params(inicial.values)
+calculate_mle_params(primer_cambio.values)
+calculate_mle_params(segundo_cambio.values)
 
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
