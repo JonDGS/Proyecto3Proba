@@ -73,9 +73,15 @@ print(statistics_df)
 
 #Pruebas de hipotesis
 
+#Función para comprobar que la muestra analizada tiene un valor de media aceptable para la compañia
+# La misma imprime a consola si la muestra es aceptable o no
 def perform_statistical_tests(data, dataset_name):
 
-    # Perform one-sample t-test
+    # Se calculan los valores t y p tomando en cuenta lo siguiente
+    # H_{0}: La muestra tiene una media u = 70 (este valor puede cambiarse en la sección de variables)
+    # H_{0}: La muestra tiene una media u > 70
+    # data se refiere a una de las muestra, puede ser inicial, primer cambio, segundo cambio
+    # limiteMediaAceptable hace referencia a la constante que se declara anteriormente
     t_statistic, p_value = stats.ttest_1samp(data, limiteMediaAceptable)
 
     print("\nPara la muestra", dataset_name + ":")
@@ -102,9 +108,15 @@ perform_statistical_tests(inicial.values, "inicial")
 perform_statistical_tests(primer_cambio.values, "primer cambio")
 perform_statistical_tests(segundo_cambio.values, "segundo cambio")
 
+#Funcion que compara estadisticamente las medias de las muestras primer cambio y segundo cambio
+# e imprime los resultados para cada muestra en consola
 def perform_statistical_tests_ind(data1, data2, dataset1_name, dataset2_name):
 
-    # Perform independent t-test
+    #Prueba t que pretende comparar estadisticamente si existe una diferencia significativa
+    #en los valores de media entre la muestra inicial, y cualquiera ya sea la primera confi-
+    #guración o la segunda
+    #data1 hace referencia a la muestra que se va a probar
+    #data2 hace referencia a la muestra contra la que se va a contrastar, en este caso siempre es iniciales
     t_statistic, p_value = stats.ttest_ind(data1, data2)
 
     print("\nCOMPROBANDO DIFERENCIAS ENTRE ", dataset1_name.upper(), " CON INICIAL...")
@@ -140,8 +152,11 @@ from scipy.stats import norm
 
 optimalSigmas = []
 
-#Obtener los parámetros de ajuste
+#Haciendo uso de MLE, calcula el parámetro sigma ideal para la distribución normal correcta para aproximar
+#las muestras del estudio. Se asume que u (media poblacional) es la misma que la media muestral en cada caso
 def calculate_mle_params(data, dataSetDic):
+
+    #Usando una derivada previamente calculada, computa el valor de sigma necesario para maximizar la función
     def getOptimalSigma(data, average):
 
         sum = 0
