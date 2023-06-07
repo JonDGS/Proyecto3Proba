@@ -71,24 +71,6 @@ statistics_df = pd.DataFrame(statistics)
 # Print the DataFrame
 print(statistics_df)
 
-# Display histograms and box plots
-for i, (column_name, column_data) in enumerate(data.items()):
-    # Create a new window for each histogram
-    fig_hist = plt.figure(figsize=(8, 6))
-    plt.hist(column_data, bins='auto')
-    plt.title(f'{column_name} Histogram')
-    plt.xlabel('Value')
-    plt.ylabel('Frequency')
-
-    # Create a new window for each box plot
-    fig_box = plt.figure(figsize=(8, 6))
-    plt.boxplot(column_data)
-    plt.title(f'{column_name} Box Plot')
-    plt.ylabel('Value')
-
-plt.tight_layout()
-plt.show(block=False)
-
 #Pruebas de hipotesis
 
 def perform_statistical_tests(data, dataset_name):
@@ -156,6 +138,8 @@ perform_statistical_tests_ind(segundo_cambio.values, inicial.values, "segundo ca
 
 from scipy.stats import norm
 
+optimalSigmas = []
+
 #Obtener los parámetros de ajuste
 def calculate_mle_params(data, dataSetDic):
     def getOptimalSigma(data, average):
@@ -169,6 +153,8 @@ def calculate_mle_params(data, dataSetDic):
 
     result = getOptimalSigma(data, dataSetDic['Average'])
 
+    optimalSigmas.insert(0, result)
+
     mle_std = result
     estimate_variance = mle_std ** 2
 
@@ -181,6 +167,43 @@ def calculate_mle_params(data, dataSetDic):
 calculate_mle_params(inicial.values, statistics['Inicial'])
 calculate_mle_params(primer_cambio.values, statistics['Primer_cambio'])
 calculate_mle_params(segundo_cambio.values, statistics['Segundo_cambio'])
+
+# Display histograms and box plots
+for i, (column_name, column_data) in enumerate(data.items()):
+
+    def distribucionNormalEstimada(x_estimatedNormal, sigma, average):
+
+        return 1/(np.sqrt(2*np.pi*(sigma)**2))*np.e**(-(x_estimatedNormal - average)**2/(2*sigma**2))
+
+    x_estimatedNormal = np.linspace(min(column_data), max(column_data))
+
+    #Create a new window for each probability function
+    fig_pf = plt.figure(figsize=(8, 6))
+    plt.plot(x_estimatedNormal, distribucionNormalEstimada(x_estimatedNormal,
+                                                            optimalSigmas.pop(0),
+                                                            statistics[str(column_name)]['Average']),
+                                                            linewidth=2, label='Normal')
+    plt.hist(column_data, bins='auto', density=True)
+    plt.title(f'{column_name} Función de probabilidad')
+    plt.xlabel('Value')
+    plt.ylabel('Probabilidad')
+    plt.legend()
+
+    # Create a new window for each histogram
+    fig_hist = plt.figure(figsize=(8, 6))
+    plt.hist(column_data, bins='auto')
+    plt.title(f'{column_name} Histogram')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+
+    # Create a new window for each box plot
+    fig_box = plt.figure(figsize=(8, 6))
+    plt.boxplot(column_data)
+    plt.title(f'{column_name} Box Plot')
+    plt.ylabel('Value')
+
+plt.tight_layout()
+plt.show(block=False)
 
 # Wait for user input before finishing execution
 input("Press Enter to exit...")
