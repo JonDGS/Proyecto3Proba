@@ -158,13 +158,18 @@ from scipy.stats import norm
 
 #Obtener los parámetros de ajuste
 def calculate_mle_params(data, dataSetDic):
-    def neg_log_likelihood(params, x):
-        sigma, mu = params
-        return np.sum(np.log(sigma ** 2) + ((x - mu) ** 2) / sigma ** 2)
+    def getOptimalSigma(data, average):
 
-    result = opt.minimize(neg_log_likelihood, x0=[1, data.mean()], args=(data,), method='Nelder-Mead')
+        sum = 0
 
-    mle_std = result.x[0]
+        for value in data:
+            sum += (value - average)**2
+        
+        return np.sqrt(sum/len(data))
+
+    result = getOptimalSigma(data, dataSetDic['Average'])
+
+    mle_std = result
     estimate_variance = mle_std ** 2
 
     print("\nPara la muestra:")
