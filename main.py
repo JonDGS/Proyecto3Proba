@@ -202,6 +202,7 @@ for i, (column_name, column_data) in enumerate(data.items()):
     plt.title(f'{column_name} Función de probabilidad')
     plt.xlabel('Value')
     plt.ylabel('Probabilidad')
+    plt.xlim(45, 100)
     plt.legend()
 
     # Create a new window for each histogram
@@ -210,12 +211,14 @@ for i, (column_name, column_data) in enumerate(data.items()):
     plt.title(f'{column_name} Histogram')
     plt.xlabel('Value')
     plt.ylabel('Frequency')
+    plt.xlim(45,100)
 
     # Create a new window for each box plot
     fig_box = plt.figure(figsize=(8, 6))
-    plt.boxplot(column_data)
+    plt.boxplot(column_data, vert=False)
     plt.title(f'{column_name} Box Plot')
     plt.ylabel('Value')
+    plt.xlim(45,100)
 
 plt.tight_layout()
 plt.show(block=False)
